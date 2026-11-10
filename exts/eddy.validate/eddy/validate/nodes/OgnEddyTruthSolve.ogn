@@ -1,0 +1,35 @@
+{
+    "EddyTruthSolve": {
+        "version": 1,
+        "description": [
+            "Eddy's truth solve for a box body under a force on one face, fixed on another (POST /v1/interop.calibrate, load_limits):",
+            "the peak von Mises stress, the safety factor and the force limit, each with the solve's result key.",
+            "With writeToPrim the result is painted on targetPrimPath as eddy:truth:* attributes."
+        ],
+        "language": "Python",
+        "categories": {"eddy": "Eddy engineering truth"},
+        "metadata": {"uiName": "Eddy Truth Solve"},
+        "inputs": {
+            "execIn": {"type": "execution", "description": "Runs the solve"},
+            "engineUrl": {"type": "string", "description": "The Eddy engine; empty = the extension setting", "default": ""},
+            "body": {"type": "token", "description": "The body's name", "default": "body"},
+            "force": {"type": "double", "description": "The force on the load face (N)", "default": 500.0},
+            "size": {"type": "double[3]", "description": "lx, ly, lz (m)", "default": [0.1, 0.1, 0.1]},
+            "loadRegion": {"type": "token", "description": "The loaded face", "default": "z_max"},
+            "fixedRegion": {"type": "token", "description": "The fixed face", "default": "z_min"},
+            "youngsModulus": {"type": "double", "description": "E (Pa)", "default": 210000000000.0},
+            "poissonRatio": {"type": "double", "description": "nu", "default": 0.3},
+            "density": {"type": "double", "description": "rho (kg/m^3)", "default": 7850.0},
+            "yieldStrength": {"type": "double", "description": "The yield strength (Pa)", "default": 250000000.0},
+            "targetPrimPath": {"type": "string", "description": "The prim the result is written onto", "default": ""},
+            "writeToPrim": {"type": "bool", "description": "Paint eddy:truth:* on targetPrimPath", "default": true}
+        },
+        "outputs": {
+            "execOut": {"type": "execution", "description": "Fires when the solve answered"},
+            "resultKey": {"type": "string", "description": "The solve's result key"},
+            "peakStress": {"type": "double", "description": "Peak von Mises stress (Pa)"},
+            "safetyFactor": {"type": "double", "description": "yield / peak stress at the force"},
+            "forceLimit": {"type": "double", "description": "The force at which the body yields (N)"}
+        }
+    }
+}

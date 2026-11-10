@@ -1,0 +1,39 @@
+{
+    "EddyCalibrate": {
+        "version": 1,
+        "description": [
+            "PhysX compliant-contact parameters from Eddy's truth (POST /v1/interop.calibrate, contacts): Hertz for a sphere,",
+            "the P1 column solve for a flat pad. Stiffness, damping, restitution and the contact offset out, with the calibration key.",
+            "With writeToPrim the values are painted on targetPrimPath as eddy:calibrate:* attributes (apply them to the",
+            "physics material yourself, or wire the outputs into a Write Prim Attribute node)."
+        ],
+        "language": "Python",
+        "categories": {"eddy": "Eddy engineering truth"},
+        "metadata": {"uiName": "Eddy Calibrate"},
+        "inputs": {
+            "execIn": {"type": "execution", "description": "Runs the calibration"},
+            "engineUrl": {"type": "string", "description": "The Eddy engine; empty = the extension setting", "default": ""},
+            "body": {"type": "token", "description": "The body's name", "default": "body"},
+            "geometryKind": {"type": "token", "description": "sphere or flat", "default": "sphere"},
+            "radius": {"type": "double", "description": "The sphere's radius (m)", "default": 0.01},
+            "padSize": {"type": "double[3]", "description": "A flat pad's lx, ly, h (m)", "default": [0.02, 0.02, 0.005]},
+            "force": {"type": "double", "description": "The working contact force (N)", "default": 20.0},
+            "effectiveMass": {"type": "double", "description": "The pair's effective mass (kg)", "default": 0.2},
+            "youngsModulus": {"type": "double", "description": "E (Pa)", "default": 210000000000.0},
+            "poissonRatio": {"type": "double", "description": "nu", "default": 0.3},
+            "density": {"type": "double", "description": "rho (kg/m^3)", "default": 7850.0},
+            "yieldStrength": {"type": "double", "description": "The yield strength (Pa)", "default": 250000000.0},
+            "targetPrimPath": {"type": "string", "description": "The prim the values are written onto", "default": ""},
+            "writeToPrim": {"type": "bool", "description": "Paint eddy:calibrate:* on targetPrimPath", "default": true}
+        },
+        "outputs": {
+            "execOut": {"type": "execution", "description": "Fires when the calibration answered"},
+            "stiffness": {"type": "double", "description": "PhysX compliant contact stiffness (N/m)"},
+            "damping": {"type": "double", "description": "PhysX compliant contact damping (N s/m)"},
+            "restitution": {"type": "double", "description": "The restitution the damping implies"},
+            "contactOffset": {"type": "double", "description": "PhysX contact offset (m)"},
+            "calibrationKey": {"type": "string", "description": "The calibration's key"},
+            "resultKey": {"type": "string", "description": "The solve's result key (flat pads; empty for the closed form)"}
+        }
+    }
+}

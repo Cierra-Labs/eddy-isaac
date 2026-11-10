@@ -1,0 +1,35 @@
+[package]
+# Semantic versioning; the registry skips a version it already holds, so bump it for every release
+# (integrations/publish/publish.json carries the same number and the release tag).
+version = "0.2.0"
+title = "Eddy Validate"
+description = "Engineering truth beside PhysX: select prims, run the Eddy engine's finite-element truth solve, paint the results on the stage through a sublayer; OmniGraph nodes for truth solve, audit and calibrate; a Replicator writer that labels frames with Eddy's numbers."
+authors = ["Eddy"]
+category = "Simulation"
+keywords = ["physics", "validation", "fea", "contact", "stress", "thermal", "omnigraph", "replicator", "eddy"]
+readme = "docs/README.md"
+changelog = "docs/CHANGELOG.md"
+repository = "https://github.com/cierra-labs/eddy-isaac"
+icon = "data/icon.png"
+preview_image = "data/preview.png"
+
+[dependencies]
+"omni.usd" = {}
+"omni.kit.menu.utils" = {}
+"omni.kit.window.popup_dialog" = {}
+# HE4: the Python OmniGraph nodes under eddy/validate/nodes (OmniGraph registers them as the
+# extension loads; omni.graph.tools generates their database classes at run time, no build step)
+"omni.graph" = {}
+"omni.graph.tools" = {}
+# HE5: the Replicator writer registers when Replicator is on; never pulled in by this extension
+"omni.replicator.core" = { optional = true }
+
+[[python.module]]
+name = "eddy.validate"
+
+[settings]
+exts."eddy.validate".engine_url = "http://127.0.0.1:8080"
+exts."eddy.validate".api_key = ""
+
+[documentation]
+pages = ["docs/README.md", "docs/CHANGELOG.md"]

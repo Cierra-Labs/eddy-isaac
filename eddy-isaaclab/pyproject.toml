@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+# Built through integrations/publish/build_dists.py, which stages this folder with the
+# LICENSE file beside it (license-files below) and writes the wheel + sdist to
+# integrations/publish/dist/pypi/. The licence and the version come from
+# integrations/publish/publish.json; the values here are what that script writes back.
+[project]
+name = "eddy-isaaclab"
+version = "0.1.0"
+description = "Eddy's engineering truth beside Isaac Lab: the peak contact force per body over an episode, audited in one batch at reset against a finite-element solve, each answer keyed."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Eddy" }]
+dependencies = ["eddy-solve>=0.1.0"]
+keywords = ["isaac-lab", "isaac-sim", "physx", "robotics", "reinforcement-learning", "validation", "fea", "contact"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+selftest = ["numpy"]
+
+[project.urls]
+Documentation = "https://eddy-ac74d702.mintlify.site/sdks/python"
+Source = "https://github.com/cierra-labs/eddy-isaac"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["eddy_isaaclab*"]

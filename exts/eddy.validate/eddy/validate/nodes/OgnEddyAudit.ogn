@@ -1,0 +1,38 @@
+{
+    "EddyAudit": {
+        "version": 1,
+        "description": [
+            "Grades a peak contact force against Eddy's finite-element truth (POST /v1/interop.audit, the contact_yield check):",
+            "the force is rounded up to the bucket, one stress solve per bucket, the safety factor and the solve's result key out.",
+            "With writeToPrim the result is painted on targetPrimPath as eddy:audit:* attributes."
+        ],
+        "language": "Python",
+        "categories": {"eddy": "Eddy engineering truth"},
+        "metadata": {"uiName": "Eddy Audit"},
+        "inputs": {
+            "execIn": {"type": "execution", "description": "Runs the audit"},
+            "engineUrl": {"type": "string", "description": "The Eddy engine; empty = the extension setting /exts/eddy.validate/engine_url", "default": ""},
+            "body": {"type": "token", "description": "The body's name in the audit", "default": "body"},
+            "peakForce": {"type": "double", "description": "The peak contact force (N)", "default": 0.0},
+            "bucket": {"type": "double", "description": "The force bucket (N)", "default": 25.0},
+            "size": {"type": "double[3]", "description": "The box body's size lx, ly, lz (m)", "default": [0.06, 0.02, 0.02]},
+            "loadRegion": {"type": "token", "description": "The loaded face (x_max, z_min, ...)", "default": "z_max"},
+            "fixedRegion": {"type": "token", "description": "The fixed face", "default": "z_min"},
+            "youngsModulus": {"type": "double", "description": "E (Pa)", "default": 210000000000.0},
+            "poissonRatio": {"type": "double", "description": "nu", "default": 0.3},
+            "density": {"type": "double", "description": "rho (kg/m^3)", "default": 7850.0},
+            "yieldStrength": {"type": "double", "description": "The yield strength (Pa)", "default": 250000000.0},
+            "minSafetyFactor": {"type": "double", "description": "The pass threshold", "default": 1.0},
+            "targetPrimPath": {"type": "string", "description": "The prim the result is written onto", "default": ""},
+            "writeToPrim": {"type": "bool", "description": "Paint eddy:audit:* on targetPrimPath", "default": true}
+        },
+        "outputs": {
+            "execOut": {"type": "execution", "description": "Fires when the audit answered"},
+            "resultKey": {"type": "string", "description": "The truth solve's result key (GET /v1/reports/<key>)"},
+            "safetyFactor": {"type": "double", "description": "yield / peak von Mises stress"},
+            "passed": {"type": "bool", "description": "safetyFactor >= minSafetyFactor"},
+            "bucketedForce": {"type": "double", "description": "The force the solve used (N)"},
+            "reportJson": {"type": "string", "description": "The audit's gap report"}
+        }
+    }
+}
