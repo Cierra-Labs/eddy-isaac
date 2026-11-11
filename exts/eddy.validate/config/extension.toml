@@ -1,7 +1,7 @@
 [package]
 # Semantic versioning; the registry skips a version it already holds, so bump it for every release
 # (integrations/publish/publish.json carries the same number and the release tag).
-version = "0.2.0"
+version = "0.2.1"
 title = "Eddy Validate"
 description = "Engineering truth beside PhysX: select prims, run the Eddy engine's finite-element truth solve, paint the results on the stage through a sublayer; OmniGraph nodes for truth solve, audit and calibrate; a Replicator writer that labels frames with Eddy's numbers."
 authors = ["Eddy"]

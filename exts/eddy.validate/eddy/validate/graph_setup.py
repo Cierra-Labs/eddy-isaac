@@ -98,11 +98,7 @@ def build_example_graph(prim_path, peak_force=130.0, engine_url="", size=(0.06, 
     create = [("Impulse", "omni.graph.action.OnImpulseEvent")]
     for k in kinds:
         create.append((k.capitalize(), NODE_TYPES[k] if how == "ogn" else "omni.graph.scriptnode.ScriptNode"))
-    connect = []
-    prev = "Impulse"
-    for k in kinds:
-        connect.append((f"{prev}.outputs:execOut", f"{k.capitalize()}.inputs:execIn"))
-        prev = k.capitalize()
+    chain = ["Impulse"] + [k.capitalize() for k in kinds]
     graph, nodes, _, _ = og.Controller.edit({"graph_path": graph_path, "evaluator_name": "execution"}, {keys.CREATE_NODES: create})
     by = {n.get_prim_path().rsplit("/", 1)[-1]: n for n in nodes}
     if how == "scriptnode":
@@ -113,6 +109,9 @@ def build_example_graph(prim_path, peak_force=130.0, engine_url="", size=(0.06, 
             for name in __import__("eddy.validate.graph_core", fromlist=["OUTPUTS"]).OUTPUTS[k]:
                 og.Controller.create_attribute(node, f"outputs:{name}", OUT_TYPES[name], og.AttributePortType.ATTRIBUTE_PORT_TYPE_OUTPUT)
             og.Controller.set(og.Controller.attribute("inputs:script", node), SCRIPT.format(kind=k, names=tuple(INPUTS[k])))
+    # attribute objects, not "Node.outputs:execOut" strings: OmniGraph 1.142 (Isaac Sim 6.0) no longer
+    # resolves node-relative path strings in CONNECT and refuses them as "not an attribute"
+    connect = [(og.Controller.attribute("outputs:execOut", by[a]), og.Controller.attribute("inputs:execIn", by[b])) for a, b in zip(chain, chain[1:])]
     sets = [(og.Controller.attribute("inputs:onlyPlayback", by["Impulse"]), False)]
     for k in kinds:
         for name, v in _values(k, prim_path, peak_force, engine_url, size).items():

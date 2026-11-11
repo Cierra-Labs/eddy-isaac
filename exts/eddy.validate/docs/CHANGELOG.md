@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] - 2026-11-11
+### Fixed
+- The example Action Graph (`graph_setup.build_example_graph`) connects its nodes by attribute objects.
+  OmniGraph 1.142 (Isaac Sim 6.0) refuses node-relative path strings such as `Impulse.outputs:execOut`
+  in a connect edit, so 0.2.0 could not build the graph there. Verified inside Isaac Sim 6.0.1 with the
+  extension's own OmniGraph nodes: truth solve, audit and calibrate all write `eddy:*` onto the prim.
+
 ## [0.2.0] - 2026-11-10
 ### Added
 - Packaged for the Kit community registry (HE2): icon, preview, changelog, repository, licence.

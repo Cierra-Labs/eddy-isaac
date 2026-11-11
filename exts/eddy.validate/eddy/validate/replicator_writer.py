@@ -59,7 +59,7 @@ def writer_class():
             from .client import Interop, _settings
 
             url, key = _settings()
-            self.version = "0.2.0"
+            self.version = "0.2.1"
             self._out = output_dir
             os.makedirs(output_dir, exist_ok=True)
             self._labeler = FrameLabeler(Interop(engine_url or url, api_key=api_key or key), [p if isinstance(p, PrimSpec) else PrimSpec(**p) for p in prims], engine_url=engine_url or url)
