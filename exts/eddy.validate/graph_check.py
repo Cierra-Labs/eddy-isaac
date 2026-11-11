@@ -19,12 +19,30 @@ import urllib.request
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--url", default=os.environ.get("SS_URL", "http://127.0.0.1:8080"))
+ap.add_argument("--api-key-file", default=os.environ.get("EDDY_API_KEY_FILE", ""), help="a file holding the Eddy API key, sent as x-api-key (default: EDDY_API_KEY or SS_API_KEY from the environment); never put the key itself on the command line")
 ap.add_argument("--exts", default="", help="the folder holding eddy.validate (default: this checkout's exts/)")
 ap.add_argument("--peak", type=float, default=130.0, help="the peak contact force the audit grades (N)")
 ap.add_argument("--force-script", action="store_true", help="build the graph from ScriptNodes even when the OGN types registered")
 ap.add_argument("--out", default="")
 ap.add_argument("--save-stage", default="")
 args = ap.parse_args()
+
+
+def _read_api_key():
+    """The Eddy API key for a hosted engine (HE13.2): a file first, then the environment; None for a local engine."""
+    if args.api_key_file:
+        with open(args.api_key_file, encoding="utf-8") as f:
+            return f.read().strip() or None
+    return os.environ.get("EDDY_API_KEY") or os.environ.get("SS_API_KEY") or None
+
+
+API_KEY = _read_api_key()
+
+
+def _req(url):
+    return urllib.request.Request(url, headers={"x-api-key": API_KEY} if API_KEY else {})
+
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXTS = os.path.abspath(args.exts or os.path.join(HERE, ".."))
 
@@ -36,7 +54,7 @@ if args.exts:
 from isaacsim import SimulationApp  # noqa: E402
 
 app = SimulationApp({"headless": True})
-report = {"engine_url": args.url, "exts": EXTS, "steps": []}
+report = {"engine_url": args.url, "api_key_sent": bool(API_KEY), "exts": EXTS, "steps": []}
 
 
 def step(name, ok, detail=""):
@@ -55,6 +73,8 @@ try:
         mgr.set_extension_enabled_immediate(ext, True)
     step("extensions enabled", mgr.is_extension_enabled("eddy.validate") and mgr.is_extension_enabled("omni.graph.action"), "eddy.validate, omni.graph.action, omni.graph.scriptnode")
     carb.settings.get_settings().set("/exts/eddy.validate/engine_url", args.url)
+    if API_KEY:
+        carb.settings.get_settings().set("/exts/eddy.validate/api_key", API_KEY)
     import eddy.validate as _ext
 
     report["extension_file"] = _ext.__file__
@@ -97,7 +117,7 @@ try:
     opened = {}
     for k in keys:
         try:
-            with urllib.request.urlopen(f"{args.url.rstrip('/')}/v1/reports/{k}", timeout=60) as r:
+            with urllib.request.urlopen(_req(f"{args.url.rstrip('/')}/v1/reports/{k}"), timeout=60) as r:
                 opened[k] = json.loads(r.read().decode("utf-8")).get("result_key") == k
         except Exception as e:  # noqa: BLE001
             opened[k] = f"refused: {e}"

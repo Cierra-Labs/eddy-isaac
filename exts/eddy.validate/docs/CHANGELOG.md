@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- The box checks (`kit_check.py`, `graph_check.py`, `replicator_check.py`, and `isaaclab_check.py` at the
+  repository root) can run against a hosted Eddy engine: they send the Eddy API key as `x-api-key`, read from
+  `--api-key-file` or the `EDDY_API_KEY` / `SS_API_KEY` environment variables, never from the command line.
+  Reports record only whether a key was sent. A local engine still needs no key.
+
 ## [0.2.1] - 2026-11-11
 ### Fixed
 - The example Action Graph (`graph_setup.build_example_graph`) connects its nodes by attribute objects.

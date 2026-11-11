@@ -22,12 +22,26 @@ from isaaclab.app import AppLauncher  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--url", default=os.environ.get("SS_URL", "http://127.0.0.1:8080"))
+ap.add_argument("--api-key-file", default=os.environ.get("EDDY_API_KEY_FILE", ""), help="a file holding the Eddy API key, sent as x-api-key (default: EDDY_API_KEY or SS_API_KEY from the environment); never put the key itself on the command line")
 ap.add_argument("--num_envs", type=int, default=8)
 ap.add_argument("--steps", type=int, default=120)
 ap.add_argument("--out", default="")
 ap.add_argument("--hook-source", choices=("repo", "installed"), default="repo", help="repo: this checkout's hook and SDK; installed: the pip-installed eddy-isaaclab / eddy-solve only")
 AppLauncher.add_app_launcher_args(ap)
 args = ap.parse_args()
+
+
+def _read_api_key():
+    """The Eddy API key for a hosted engine (HE13.2): a file first, then the environment; None for a local engine."""
+    if args.api_key_file:
+        with open(args.api_key_file, encoding="utf-8") as f:
+            return f.read().strip() or None
+    return os.environ.get("EDDY_API_KEY") or os.environ.get("SS_API_KEY") or None
+
+
+API_KEY = _read_api_key()
+
+
 if args.hook_source == "repo":
     sys.path.insert(0, HERE)
 args.headless = True
@@ -85,7 +99,7 @@ class BlockSceneCfg(InteractiveSceneCfg):
 
 
 def main():
-    report = {"engine_url": args.url, "num_envs": args.num_envs, "steps": args.steps, "hook_source": args.hook_source, "imported": origins()}
+    report = {"engine_url": args.url, "api_key_sent": bool(API_KEY), "num_envs": args.num_envs, "steps": args.steps, "hook_source": args.hook_source, "imported": origins()}
     if args.hook_source == "installed":
         # this folder (the hook's src/ sits under it) and the superstring checkout's SDK
         checkout = [HERE, os.path.abspath(os.path.join(HERE, "..", "..", "sdks"))]
@@ -106,7 +120,7 @@ def main():
     block.write_root_pose_to_sim(root[:, :7])
     block.write_root_velocity_to_sim(root[:, 7:])
     scene.write_data_to_sim()
-    audit = ForceAudit(["block"], [contact_yield_check("block", 50.0, LX, LY, LZ, "z_max", "z_min", steel())], base_url=args.url)
+    audit = ForceAudit(["block"], [contact_yield_check("block", 50.0, LX, LY, LZ, "z_max", "z_min", steel())], base_url=args.url, api_key=API_KEY)
     t0 = time.perf_counter()
     for k in range(args.steps):
         scene.write_data_to_sim()

@@ -29,6 +29,7 @@ COMMUNITY = "https://dw290v42wisod.cloudfront.net/exts/kit/community"
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--url", default=os.environ.get("SS_URL", "http://127.0.0.1:8080"))
+ap.add_argument("--api-key-file", default=os.environ.get("EDDY_API_KEY_FILE", ""), help="a file holding the Eddy API key, sent as x-api-key (default: EDDY_API_KEY or SS_API_KEY from the environment); never put the key itself on the command line")
 ap.add_argument("--stage", required=True)
 ap.add_argument("--out", default="")
 ap.add_argument("--ext-source", choices=("repo", "zip", "registry"), default="repo", help="repo: this checkout's exts/ folder; zip: a release zip (the published GitHub asset, a path or an https URL); registry: pulled from a Kit registry (the community one by default)")
@@ -37,6 +38,19 @@ ap.add_argument("--registry-url", default=COMMUNITY)
 ap.add_argument("--registry-name", default="kit/community")
 ap.add_argument("--ext-version", default="", help="with --ext-source registry: the version to pull (default: the newest listed)")
 args = ap.parse_args()
+
+
+def _read_api_key():
+    """The Eddy API key for a hosted engine (HE13.2): a file first, then the environment; None for a local engine."""
+    if args.api_key_file:
+        with open(args.api_key_file, encoding="utf-8") as f:
+            return f.read().strip() or None
+    return os.environ.get("EDDY_API_KEY") or os.environ.get("SS_API_KEY") or None
+
+
+API_KEY = _read_api_key()
+
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXTS = os.path.abspath(os.path.join(HERE, ".."))
 
@@ -94,7 +108,7 @@ def pull_from_registry(mgr):
 from isaacsim import SimulationApp  # noqa: E402
 
 app = SimulationApp({"headless": True})
-report = {"engine_url": args.url, "stage": args.stage, "ext_source": args.ext_source, "steps": []}
+report = {"engine_url": args.url, "api_key_sent": bool(API_KEY), "stage": args.stage, "ext_source": args.ext_source, "steps": []}
 
 
 def step(name, ok, detail=""):
@@ -122,6 +136,8 @@ try:
     mgr.set_extension_enabled_immediate("eddy.validate", True)
     step("extension enabled", mgr.is_extension_enabled("eddy.validate"), "eddy.validate through the extension manager")
     carb.settings.get_settings().set("/exts/eddy.validate/engine_url", args.url)
+    if API_KEY:
+        carb.settings.get_settings().set("/exts/eddy.validate/api_key", API_KEY)
     import eddy.validate as ext
     from eddy.validate import client
 
